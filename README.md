@@ -75,11 +75,11 @@ Running the demo:
 
 Board connections: connect the expansion boards as shown below
 
-<p align="center"><img src="./images/expansion_board.png" width="650"></p>
+<p align="center"><img src="./images/expansion_board.jpg" width="650"></p>
 
-The image shows the HS2 cable, which leaves unconnect the nTRST and nRST pins - Otherwise please connect the Opella Cable.
+The image shows the HS2 cable, which leaves unconnect the nTRST and nRST pins as shown below - Otherwise please connect the Opella Cable.
 
-
+<p align="center"><img src="./images/expansion_boards_hs2.jpg" width="650"></p>
 
 An OpenHW Group Grafana [dashboard](https://openhwgroup.grafana.net/dashboards) displays the measurements sent to the OpenHW's AWS IoT Core.
 Contact the OpenHW Staff to obtain the viewer's credentials.
