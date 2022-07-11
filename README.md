@@ -4,8 +4,9 @@
 
 You can run the core-v-mcu-demo with either the OpenHW Group expansion board, or with the ESP-C3-Expresslink-Devkit.
 
+### Requirements:
 
-### ESP-C3-Expresslink-Devkit Requirements:
+#### ESP-C3-Expresslink-Devkit setup:
 - Digilent Nexys A7 (artix7 100T) board
 - ESP-C3-Expresslink-Devkit
 - 3x USB2microUSB cables
@@ -16,15 +17,14 @@ You can run the core-v-mcu-demo with either the OpenHW Group expansion board, or
 
 Note: I had to manually bend one row of pins in the PMOD header.
 
-### OpenHW Group expansion board Requirements:
+#### OpenHW Group expansion board setup:
 - Digilent Nexys A7 (artix7 100T) board
 - OpenHW Group expansion board
 - Digilent HS2 connector
 - PMOD header male-male, 2 rows
 - latest version of the FPGA bitfile, which can be found [here](http://downloads.openhwgroup.org/)
 
-
-CORE-V-SDK:
+#### CORE-V-SDK:
 - download the latest version of the CORE-V-SDK from the official [download page](http://downloads.openhwgroup.org/) and install it
     - the `core-v-mcu-cli-test` [page](https://github.com/openhwgroup/core-v-mcu-cli-test/blob/main/README.md) offers a nice guide: just remember to use the `demo` project instead of the `cli-test` project
 
