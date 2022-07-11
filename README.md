@@ -25,8 +25,10 @@ Note: I had to manually bend one row of pins in the PMOD header.
 - latest version of the FPGA bitfile, which can be found [here](http://downloads.openhwgroup.org/)
 
 #### CORE-V-SDK:
-- download the latest version of the CORE-V-SDK from the official [download page](http://downloads.openhwgroup.org/) and install it
-    - the `core-v-mcu-cli-test` [page](https://github.com/openhwgroup/core-v-mcu-cli-test/blob/main/README.md) offers a nice guide: just remember to use the `demo` project instead of the `cli-test` project
+- download the latest version of the CORE-V-SDK from the official [download page](http://downloads.openhwgroup.org/) and install it.
+- Now import the project contained in this repository called `demo`. To do so, follow the `core-v-mcu-cli-test` [page](https://github.com/openhwgroup/core-v-mcu-cli-test/blob/main/README.md) as a baseline until Step 4.4. 
+- For Step 4.5, we want to provide the URL of this repository, so use the link https://github.com/openhwgroup/core-v-mcu-demo.git. And finally, 
+in Step 4.9 import the `demo` project.
 
 ESP setup:
 - [this page](https://github.com/espressif/esp-aws-expresslink-eval) provides useful information about how to setup the ESP board
