@@ -66,7 +66,7 @@ Connect via minicom (or similar) to each of the /dev/ttyUSB* device to identify 
 Running the demo:
 1. power up both boards (remember: SW0 must be switched towards the inside of the board, otherwise it is not possible to connect the debugger)
 2. [optional] open 2 terminals to see the debug messages
-3. open CORE-V-SDK and load the `cli-test` project (`iot_demo` branch)
+3. open CORE-V-SDK and load the `demo` project
 4. compile the code
 5. load the executable in the MCU
 6. run
@@ -80,6 +80,23 @@ Board connections: connect the expansion boards as shown below
 The image shows the HS2 cable, which leaves unconnect the nTRST and nRST pins as shown below - Otherwise please connect the Opella Cable.
 
 <p align="center"><img src="./images/expansion_boards_hs2.jpg" width="650"></p>
+
+Identify the USB ports on the host PC
+The host PC should see 2 /dev/ttyUSB* interfaces:
+1. one used for the debugger
+2. one used by the MCU to send messages via CLI_print (over UART0)
+
+Connect via minicom (or similar) to each of the /dev/ttyUSB* device to identify them. After reset:
+1. prints no information
+2. prints `A2 boot`
+
+Running the demo:
+1. power up both boards (remember: SW0 must be switched towards the inside of the board, otherwise it is not possible to connect the debugger)
+2. [optional] open 2 terminals to see the debug messages
+3. open CORE-V-SDK and load the `demo` project
+4. compile the code
+5. load the executable in the MCU
+6. run
 
 An OpenHW Group Grafana [dashboard](https://openhwgroup.grafana.net/dashboards) displays the measurements sent to the OpenHW's AWS IoT Core.
 Contact the OpenHW Staff to obtain the viewer's credentials.
