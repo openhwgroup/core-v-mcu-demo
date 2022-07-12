@@ -138,6 +138,6 @@ The temperature here (Zurich) is 30.40000 C```
 
 Of course both the city and the temperature may be different.
 
-
+## Dashboard
 An OpenHW Group Grafana [dashboard](https://openhwgroup.grafana.net/dashboards) displays the measurements sent to the OpenHW's AWS IoT Core.
 Contact the OpenHW Staff to obtain the viewer's credentials.
