@@ -98,5 +98,46 @@ Running the demo:
 5. load the executable in the MCU
 6. run
 
+Now that you load the `demo` program, on your PC, minicom will show the core-v-mcu (on the nexys) printing
+
+```
+AT check done
+Thing name: **the thing name of your board**
+Press a key to enter CONFMODE...10...9...
+Entering CONFMODE - do a power cycle at the end of the configuration
+```
+
+The **Thing name** needs to be provided to an OpenHW Group staff member.
+
+Press a key before the 10 seconds counter expires.
+
+Now it's time to configure the WiFi of the expansion board, we do this with your mobile phone.
+
+As reported in Section 6.1 of the espressif [page](https://github.com/espressif/esp-aws-expresslink-eval#61-set-up-for-wi-fi),
+download the App on your phone.
+Then scan with Bluetooth your device, and then add your WiFi configuration. 
+
+If you the configuration of your network fails due to "provisioning status", you may need to reboot the nexsys board, re-load the demo project and repeat 
+until success.
+
+Once the network is set, reboot the board and re-load the demo program with the CORE-V-SDK.
+
+Now on minicom, don't press any key as the espressif has been configured already in the previous step.
+
+You should now see:
+
+```
+AT check done
+Thing name: **the thing name of your board**
+Press a key to enter CONFMODE...10...9...8...7...6...5...4...3...2...1...
+WiFi configured
+Topic configured
+ESP connected
+The temperature here (Zurich) is 30.40000 C```
+```
+
+Of course both the city and the temperature may be different.
+
+
 An OpenHW Group Grafana [dashboard](https://openhwgroup.grafana.net/dashboards) displays the measurements sent to the OpenHW's AWS IoT Core.
 Contact the OpenHW Staff to obtain the viewer's credentials.
