@@ -107,6 +107,8 @@ static void prvSetupHardware( void );
 char* SOFTWARE_VERSION_STR = "cli_test v0.2 - NoInt \n";
 extern const struct cli_cmd_entry my_main_menu[];
 
+xTaskHandle xHandleDemo;
+
 int main(void)
 {
     prvSetupHardware();
@@ -115,8 +117,10 @@ int main(void)
 	of this file. */
 
 	xTaskCreate(iot_app, "iot",
-		    configMINIMAL_STACK_SIZE, NULL,
-			tskIDLE_PRIORITY+1, NULL);
+			14 * CLI_TASK_STACKSIZE, NULL,
+			(UBaseType_t)(tskIDLE_PRIORITY+2), &xHandleDemo);
+
+	configASSERT( xHandleDemo );
 
 	/* Start the tasks and timer running. */
 	vTaskStartScheduler();
