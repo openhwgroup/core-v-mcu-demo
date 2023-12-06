@@ -101,9 +101,9 @@ uint16_t udma_uart_open (uint8_t uart_id, uint32_t xbaudrate) {
 	puart->uart_setup_b.div = (uint16_t)(5000000/xbaudrate);
 	puart->uart_setup_b.bits = 3; // 8-bits
 //	if (uart_id == 0)
-		puart->uart_setup_b.rx_polling_en = 1;
+//		puart->uart_setup_b.rx_polling_en = 1;
 //	if (uart_id == 1)
-//		puart->irq_en_b.rx_irq_en = 1;
+		puart->irq_en_b.rx_irq_en = 1;
 	puart->uart_setup_b.en_tx = 1;
 	puart->uart_setup_b.en_rx = 1;
 	puart->uart_setup_b.rx_clean_fifo = 1;

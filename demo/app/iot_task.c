@@ -3,6 +3,7 @@
 #include "drivers/include/udma_uart_driver.h"
 #include "hal/include/hal_apb_soc_ctrl_regs.h"
 #include "target/core-v-mcu/include/core-v-mcu-config.h"
+#include "libs/cli/include/cli.h"
 
 #include <string.h>
 #include <stdbool.h>
@@ -134,65 +135,182 @@ void at_check()
 	CLI_printf("AT check done\r\n");
 }
 
+void rx_byte( int c )
+{
+    static const char _backspace[] = "\b \b";
+    int x;
+    static int last_was_cr;
+
+    /* handle CR/LF
+    * and CR
+    * and LF
+    * As a terminator
+    */
+    if( last_was_cr && (c =='\n') ){
+        /* make CR/LF look like a single \n */
+        last_was_cr = 0;
+        return;
+    }
+
+    if( c == '\r' ){
+        /* map to newline */
+        c = '\n';
+        last_was_cr = 1;
+    } else {
+        last_was_cr = 0;
+    }
+
+    /* we commonly need the len so get it always */
+    /* todo: Future, would be nice to have up/dn arrow support cmd history */
+    /* Todo: Would be nice if we had fancy editing of the command line */
+
+    x = strlen( CLI_common.cmdline );
+    switch( c ){
+    case 0x03: /* Control-C */
+        /* Acknowedge the key, also see the Simualted ^C in command dispatch  */
+        CLI_printf(" **^C**\n");
+        memset( (void *)(&(CLI_common.cmdline[0])), 0, sizeof(CLI_common.cmdline) );
+        CLI_cmd_stack_clear();
+        break;
+    case 0x1b: /* ESCAPE key erases all bytes */
+      /* note: this is different then ESC as a prefix to a CSI sequence (arrow key)
+       * See arrow key decoding in CLI_getkey() code
+       */
+        if( x == 0 ){
+            /* beep */
+            CLI_beep();
+            break;
+        }
+        /* back over */
+        while( x ){
+            CLI_puts_no_nl(_backspace);
+            x--;
+        }
+        memset( CLI_common.cmdline, 0, sizeof(CLI_common.cmdline) );
+        break;
+    case '\b': /* backspace */
+    case 0x7F: /* delete */
+        if( x == 0 ){
+            CLI_beep();
+            break;
+        }
+        CLI_puts_no_nl(_backspace);
+        x--;
+        CLI_common.cmdline[x] = 0;
+        break;
+    case '\n':
+        CLI_putc('\n');
+        break;
+    case '\t':
+        /* future: add command completion */
+        /* treat as space */
+        c = ' ';
+        /* fallthrough */
+    default:
+        /* if NOT in ASCII range (function keys, arrow keys, etc)*/
+        if( (c < 0x20) || (c >= 0x7f) ){
+            CLI_beep();
+            break;
+        }
+        if( x >= (sizeof(CLI_common.cmdline)-1) ){
+	    /* too much */
+	    CLI_beep();
+        } else {
+   	    /* Append */
+            CLI_common.cmdline[x+0] = c;
+            CLI_common.cmdline[x+1] = 0;
+            /* echo */
+            CLI_putc(c);
+        }
+        break;
+    }
+}
+
+void get_string()
+{
+    int k;
+
+    memset( (void *)(&CLI_common.cmdline[0]), 0, sizeof(CLI_common.cmdline) );
+
+	while(1) {
+		k = CLI_getkey( 10*1000 );
+		if( k == EOF ){
+			continue;
+		}
+		rx_byte( k );
+
+		if (strlen( CLI_common.cmdline ) == 0)
+			break;
+
+		if(k == '\r' || k == '\n')
+			break;
+	}
+}
+
 void at_set_wifi()
 {
+    char msg[256];
     char resp[32];
     char ok[] = "OK\n";
 	char endpoint[] = "AT+CONF EndPoint=a25slo9f5m9kt7-ats.iot.eu-west-1.amazonaws.com\n";
-	char confmode[] = "AT+CONFMODE\n";
     char skip_confmode = 0;
     int timeout = 10;
-//	char ssid[] = "AT+CONF SSID=mySSID\n";
-//	char passwd[] = "AT+CONF Passphrase=myPassword\n";
 
+    vTaskDelay(100);
+    CLI_common.timestamps = 0;
+
+    /*
     resp[0] = '\0';
-
     while (strncmp(resp, ok, sizeof(ok)-1)) {
     	udma_uart_flush(1);
     	udma_uart_writeraw(1, strlen(endpoint), endpoint);
     	udma_uart_read_mod(1, sizeof(resp), resp);
     }
-
-	CLI_printf("Press a key to enter CONFMODE...");
+*/
+	CLI_printf("Press a key to enter configuration mode...");
     while(timeout) {
     	CLI_printf("%d...", timeout);
-    	busy_sleep(1);
 
-		skip_confmode = udma_uart_peek(0);
+    	skip_confmode = CLI_getkey( 2*1000 );
 
 		if (skip_confmode != EOF) {
-	    	CLI_printf("\r\nEntering CONFMODE - do a power cycle at the end of the configuration\r\n");
+
+			timeout = 1;
 			resp[0] = '\0';
 
 			while (strncmp(resp, ok, sizeof(ok)-1)) {
+				CLI_printf("\r\nSet SSID: ");
+				get_string();
+				if (strlen( CLI_common.cmdline ) == 0)
+					break;
+				sprintf(msg, "AT+CONF SSID=%s\n", CLI_common.cmdline);
+
 				udma_uart_flush(1);
-				udma_uart_writeraw(1, strlen(confmode), confmode);
+				udma_uart_writeraw(1, strlen(msg), msg);
 				udma_uart_read_mod(1, sizeof(resp), resp);
+				if (strncmp(resp, ok, sizeof(ok)-1))
+					CLI_printf("Error setting SSID\r\n");
+				resp[0] = '\0';
 			}
-			while(1);
+
+			while (strncmp(resp, ok, sizeof(ok)-1)) {
+				CLI_printf("Set Password: ");
+				get_string();
+				if (strlen( CLI_common.cmdline ) == 0)
+					break;
+				sprintf(msg, "AT+CONF Passphrase=%s\n", CLI_common.cmdline);
+
+				udma_uart_flush(1);
+				udma_uart_writeraw(1, strlen(msg), msg);
+				udma_uart_read_mod(1, sizeof(resp), resp);
+				if (strncmp(resp, ok, sizeof(ok)-1))
+					CLI_printf("Error setting password\r\n");
+				resp[0] = '\0';
+			}
 		}
 		timeout--;
     }
 	CLI_printf("\r\n");
-/*
-    resp[0] = '\0';
-
-    while (strncmp(resp, ok, sizeof(ok)-1)) {
-    	udma_uart_flush(1);
-    	udma_uart_writeraw(1, strlen(ssid), ssid);
-    	udma_uart_read_mod(1, sizeof(resp), resp);
-    }
-
-    resp[0] = '\0';
-
-    while (strncmp(resp, ok, sizeof(ok)-1)) {
-    	udma_uart_flush(1);
-    	udma_uart_writeraw(1, strlen(passwd), passwd);
-    	udma_uart_read_mod(1, sizeof(resp), resp);
-    }
-*/
-
-
 
     CLI_printf("WiFi configured\r\n");
 }
@@ -252,9 +370,6 @@ void at_send_measure()
 void iot_app( void *pParameter )
 {
 	(void)pParameter;
-
-	udma_uart_open(1, 115200);
-	udma_uart_open(0, 115200);
 
 	while (1) {
 		at_check();
